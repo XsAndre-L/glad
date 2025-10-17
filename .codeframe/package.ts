@@ -1,13 +1,10 @@
-import {
-  BuildArchitectures,
-  OUTPUT_DIR,
-} from "../../../src/types/package-config.ts";
+import { BuildType, OUTPUT_DIR } from "../../../src/types/package-config.ts";
 import { runPackageAction } from "../../../src/packages.ts";
 
 import { resolve, join } from "node:path";
 import { argv } from "node:process";
 
-export const builds = (cwd: string = process.cwd()): BuildArchitectures => {
+export const build = (cwd: string = process.cwd()): BuildType => {
   const toolchain = resolve(cwd, "../../toolchains/llvm-mingw");
   const CLANG = join(toolchain, "bin/clang.exe").replace(/\\/g, "/");
   const CLANGXX = join(toolchain, "bin/clang++.exe").replace(/\\/g, "/");
@@ -18,8 +15,9 @@ export const builds = (cwd: string = process.cwd()): BuildArchitectures => {
   ).replace(/\\/g, "/");
 
   return {
+    type: "architectures",
     windows_x86_64: {
-      configStep: `cmake -S ./cmake -B build/build-x86_64 -G Ninja \
+      configStep: `cmake -S ./cmake -B build/windows/x86_64 -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
       -DBUILD_SHARED_LIBS=OFF \
       -DCMAKE_C_COMPILER=${CLANG} \
@@ -32,11 +30,11 @@ export const builds = (cwd: string = process.cwd()): BuildArchitectures => {
       -DCMAKE_INSTALL_PREFIX=${OUTPUT_DIR}/windows/x86_64/glad
     `,
 
-      buildStep: `cmake --build build/build-x86_64 -j`,
-      installStep: `cmake --install build/build-x86_64`,
+      buildStep: `cmake --build build/windows/x86_64 -j`,
+      installStep: `cmake --install build/windows/x86_64`,
     },
     windows_aarch64: {
-      configStep: `cmake -S ./cmake -B build/build-aarch64 -G Ninja \
+      configStep: `cmake -S ./cmake -B build/windows/aarch64 -G Ninja \
       -DCMAKE_BUILD_TYPE=Release \
       -DBUILD_SHARED_LIBS=OFF \
       -DCMAKE_C_COMPILER=${CLANG} \
@@ -49,13 +47,23 @@ export const builds = (cwd: string = process.cwd()): BuildArchitectures => {
       -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
       -DCMAKE_INSTALL_PREFIX=${OUTPUT_DIR}/windows/aarch64/glad
       `,
-      buildStep: `cmake --build build/build-aarch64 -j`,
-      installStep: `cmake --install build/build-aarch64`,
+      buildStep: `cmake --build build/windows/aarch64 -j`,
+      installStep: `cmake --install build/windows/aarch64`,
     },
-  } satisfies BuildArchitectures;
+    linux_x86_64: {
+      configStep: ``,
+      buildStep: ``,
+      installStep: ``,
+    },
+    linux_aarch64: {
+      configStep: ``,
+      buildStep: ``,
+      installStep: ``,
+    },
+  } satisfies BuildType;
 };
 
 const args = argv.slice(2);
 const [action = "help"] = args;
 
-await runPackageAction(action, process.cwd(), builds());
+await runPackageAction(action, process.cwd(), build());

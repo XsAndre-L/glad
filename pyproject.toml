@@ -52,8 +52,8 @@ glx = "glad.specification:GLX"
 wgl = "glad.specification:WGL"
 vk = "glad.specification:VK"
 
-[project.optional-dependencies]
-fortran = ["glad2-fortran"]
+# [project.optional-dependencies]
+# fortran = ["glad2-fortran"]
 
 [tool.setuptools]
 platforms = ["any"]
